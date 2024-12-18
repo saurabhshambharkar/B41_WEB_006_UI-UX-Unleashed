@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeStream - Simple Music Streaming</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: black;
+            color: #fff;
+            padding: 10px 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .auth-buttons button {
+            margin-left: 10px;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #555;
+            color: white;
+            cursor: pointer;
+        }
+
+        .auth-buttons button:hover {
+            background-color: #777;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 50px;
+            background-color: #ddd;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-bar button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .song-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .song-item {
+            padding: 10px;
+            margin: 5px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 80%;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo-section">
+                <img src="logo.jpg" alt="VibeStream Logo">
+                <p>VibeStream</p>
+            </div>
+            <div class="auth-buttons">
+                <button>Log In</button>
+                <button>Sign Up</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Welcome to VibeStream</h1>
+            <p>Stream your favorite music for free!</p>
+            <div class="search-bar">
+                <input type="text" id="searchQuery" placeholder="Search for songs...">
+                <button onclick="searchSongs()">Search</button>
+            </div>
+        </section>
+
+        <section class="song-list" id="songList">
+            <!-- Songs will be dynamically loaded here -->
+        </section>
+
+        <div class="pagination" id="pagination">
+            <!-- Pagination buttons will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 VibeStream - All Rights Reserved</p>
+    </footer>
+
+    <script>
+const apiUrl = "https://trial-5cb8c-default-rtdb.firebaseio.com/.json"; // Firebase API URL
+let songs = [];
+let currentPage = 1;
+const itemsPerPage = 5; // Number of songs per page
+let filteredSongs = []; // This will store the filtered songs for search or filter
+
+// Fetch songs from Firebase
+fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.songs) {
+            // Convert Firebase object to array using Object.values to get the songs
+            songs = Object.values(data.songs);
+            console.log(songs);  // Debugging line to check the fetched data
+            filteredSongs = songs; // Initialize filtered songs with all songs
+            displaySongs(filteredSongs);
+            generatePagination(filteredSongs.length);
+        } else {
+            console.error('No songs data found');
+        }
+    })
+    .catch(error => console.error('Error fetching songs:', error));
+
+// Display songs on the page
+function displaySongs(songsToDisplay) {
+    const songListElement = document.getElementById("songList");
+    songListElement.innerHTML = ""; // Clear previous songs
+
+    // Slice the array for pagination
+    const paginatedSongs = songsToDisplay.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    // Create song items
+    paginatedSongs.forEach(song => {
+        // Log the song data to inspect it
+        console.log(song);
+
+        // Check if the song is valid and has all required properties
+        if (song && song.title && song.artist && song.language && song.duration && song.location) {
+            const songItem = document.createElement("div");
+            songItem.className = "song-item";
+            songItem.innerHTML = `
+                <h3>${song.title}</h3>
+                <p>${song.artist}</p>
+                <p>Language: ${song.language}</p>
+                <p>Duration: ${song.duration}</p>
+                <audio controls src="${song.location}"></audio>
+            `;
+            songListElement.appendChild(songItem);
+        } else {
+            console.warn('Song data is missing properties or is null:', song);
+        }
+    });
+}
+
+
+
+// Generate pagination buttons
+function generatePagination(totalItems) {
+    const paginationElement = document.getElementById("pagination");
+    paginationElement.innerHTML = ""; // Clear previous pagination
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement("button");
+        pageButton.textContent = i;
+        pageButton.onclick = () => {
+            currentPage = i;
+            displaySongs(filteredSongs);
+        };
+        paginationElement.appendChild(pageButton);
+    }
+}
+
+// Search functionality
+function searchSongs() {
+    const query = document.getElementById("searchQuery").value.toLowerCase();
+    const filtered = songs.filter(song => song.title.toLowerCase().includes(query));
+    filteredSongs = filtered;
+    currentPage = 1; // Reset to the first page on each search
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+// Sort functionality by Title (alphabetical)
+function sortSongsByTitle() {
+    filteredSongs = filteredSongs.sort((a, b) => a.title.localeCompare(b.title));
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+// Sort functionality by Artist (alphabetical)
+function sortSongsByArtist() {
+    filteredSongs = filteredSongs.sort((a, b) => a.artist.localeCompare(b.artist));
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+// Sort functionality by Language (alphabetical)
+function sortSongsByLanguage() {
+    filteredSongs = filteredSongs.sort((a, b) => a.language.localeCompare(b.language));
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+// Filter by Language
+function filterByLanguage(language) {
+    const filtered = songs.filter(song => song.language.toLowerCase() === language.toLowerCase());
+    filteredSongs = filtered;
+    currentPage = 1; // Reset to the first page on filtering
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+// Reset search and filters
+function resetFilters() {
+    document.getElementById("searchQuery").value = '';
+    filteredSongs = songs;
+    currentPage = 1;
+    displaySongs(filteredSongs);
+    generatePagination(filteredSongs.length);
+}
+
+    </script>   
+</body>
+</html>
