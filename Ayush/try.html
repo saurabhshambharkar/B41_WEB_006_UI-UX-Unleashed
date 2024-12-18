@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+<script>
+const apiUrl = 'https://trial-5cb8c-default-rtdb.firebaseio.com/.json';
+
+// Fetch data from Firebase
+fetch(apiUrl)
+    .then(response => response.json())  // Parse the JSON response
+    .then(data => {
+        // Check if the data is valid and contains songs
+        if (data && data.songs) {
+            // Extract the songs from the "songs" object
+            let songs = Object.values(data.songs);  // Convert object to an array
+
+            console.log(songs); 
+        }
+        })
+</script>
