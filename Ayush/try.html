@@ -10,10 +10,10 @@
 </body>
 </html>
 <script>
-const apiUrl = 'https://trial-5cb8c-default-rtdb.firebaseio.com/.json';
+const databaseURL = 'https://trial-5cb8c-default-rtdb.firebaseio.com/.json';
 
 // Fetch data from Firebase
-fetch(apiUrl)
+fetch(databaseURL)
     .then(response => response.json())  // Parse the JSON response
     .then(data => {
         // Check if the data is valid and contains songs
