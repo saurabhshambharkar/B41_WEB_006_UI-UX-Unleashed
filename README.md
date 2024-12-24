@@ -1,5 +1,10 @@
 # B41_WEB_006_UI-UX-Unleashed
 Music Streaming Project
+
+Live Demo: Explore Vibestream in action! Click https://warm-cheesecake-8bfc28.netlify.app/ to experience our fully functional music streaming platform.
+
+https://warm-cheesecake-8bfc28.netlify.app/
+
 Vibestream - Music Streaming App 🎵
 Vibestream is a sleek and user-friendly music streaming platform designed for music lovers who enjoy seamless access to their favorite tracks, artists, and playlists. The app features a modern interface, personalized music experiences, and essential controls for a delightful listening journey.
 
